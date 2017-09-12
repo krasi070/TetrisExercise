@@ -9,12 +9,15 @@ public class Tetromino : MonoBehaviour
     public bool allowRotation = true;
     public bool limitRotation = false;
     public bool allowHolding = true;
+    public bool holdingOn = true;
 
     private int softDropNumber = 0;
     private float verticalInterval = 0.05f;
     private float horizontalInterval = 0.1f;
     private float verticalTime = 0;
     private float horizontalTime = 0;
+
+    private int[] corrections = new int[4] { 0, -1, 1, 2 };
 
     float fall = 0;
 
@@ -67,7 +70,7 @@ public class Tetromino : MonoBehaviour
             Rotate(-90);
         }
 
-        if (Input.GetKeyDown(GameManager.Instance.Hold))
+        if (Input.GetKeyDown(GameManager.Instance.Hold) && holdingOn)
         {
             if (allowHolding)
             {
@@ -91,7 +94,7 @@ public class Tetromino : MonoBehaviour
 
         horizontalTime = 0;
         transform.position += new Vector3(1, 0, 0);
-        if (!CheckIsValidPosition())
+        if (!CheckIsValidPosition(Vector3.zero))
         {
             transform.position -= new Vector3(1, 0, 0);
         }
@@ -114,7 +117,7 @@ public class Tetromino : MonoBehaviour
 
         horizontalTime = 0;
         transform.position += new Vector3(-1, 0, 0);
-        if (!CheckIsValidPosition())
+        if (!CheckIsValidPosition(Vector3.zero))
         {
             transform.position -= new Vector3(-1, 0, 0);
         }
@@ -137,7 +140,7 @@ public class Tetromino : MonoBehaviour
 
         verticalTime = 0;
         transform.position += new Vector3(0, -1, 0);
-        if (!CheckIsValidPosition())
+        if (!CheckIsValidPosition(Vector3.zero))
         {
             transform.position -= new Vector3(0, -1, 0);
             enabled = false;
@@ -221,41 +224,46 @@ public class Tetromino : MonoBehaviour
 
     void RotateIfPossible(int rotation)
     {
-        if (CheckIsValidPosition())
+        for (int j = 0; j < corrections.Length; j++)
         {
-            for (int i = 0; i < transform.childCount; i++)
+            Vector3 correction = new Vector3(corrections[j], 0, 0);
+            if (CheckIsValidPosition(correction))
             {
-                transform.GetChild(i).transform.Rotate(new Vector3(0, 0, -rotation));
-            }
+                transform.position += correction;
+                for (int i = 0; i < transform.childCount; i++)
+                {
+                    transform.GetChild(i).transform.Rotate(new Vector3(0, 0, -rotation));
+                }
 
-            FindObjectOfType<Grid>().UpdateGrid(this);
-            FindObjectOfType<SoundEffects>().PlayRotateAudio();
-            GameObject ghost = FindObjectOfType<GhostTetromino>().gameObject;
-            ghost.transform.Rotate(new Vector3(0, 0, rotation));
-            for (int i = 0; i < ghost.transform.childCount; i++)
-            {
-                ghost.transform.GetChild(i).transform.Rotate(new Vector3(0, 0, -rotation));
-            }
+                FindObjectOfType<Grid>().UpdateGrid(this);
+                FindObjectOfType<SoundEffects>().PlayRotateAudio();
+                GameObject ghost = FindObjectOfType<GhostTetromino>().gameObject;
+                ghost.transform.Rotate(new Vector3(0, 0, rotation));
+                for (int i = 0; i < ghost.transform.childCount; i++)
+                {
+                    ghost.transform.GetChild(i).transform.Rotate(new Vector3(0, 0, -rotation));
+                }
 
-            ghost.transform.position = FindObjectOfType<Grid>().GetHardDropPosition(this);
+                ghost.transform.position = FindObjectOfType<Grid>().GetHardDropPosition(this);
+
+                return;
+            }
         }
-        else
-        {
-            transform.Rotate(new Vector3(0, 0, -rotation));
-        }
+
+        transform.Rotate(new Vector3(0, 0, -rotation));
     }
 
-    bool CheckIsValidPosition()
+    bool CheckIsValidPosition(Vector3 correction)
     {
         foreach (Transform mino in transform)
         {
             var grid = FindObjectOfType<Grid>();
-            if (!grid.CheckIsInsidePlayArea(mino.position))
+            if (!grid.CheckIsInsidePlayArea(mino.position + correction))
             {
                 return false;
             }
 
-            if (grid.GetTransformAtPosition(mino.position) != null && grid.GetTransformAtPosition(mino.position).parent != transform)
+            if (grid.GetTransformAtPosition(mino.position + correction) != null && grid.GetTransformAtPosition(mino.position + correction).parent != transform)
             {
                 return false;
             }

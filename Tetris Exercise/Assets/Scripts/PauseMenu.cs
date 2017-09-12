@@ -31,7 +31,12 @@ public class PauseMenu : MonoBehaviour
 
     public void Restart()
     {
-        Toggle();
         SceneManager.LoadScene("Level");
+        Toggle();
+    }
+
+    public void GoToMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 }

@@ -11,6 +11,8 @@ public class Grid : MonoBehaviour
     public static int invisibleRows = 5;
     public static int maxPossible = 22;
     public static int spawnDifference = 1;
+    public static bool holdingOn = true;
+    public static bool ghostOn = true;
     public static Transform[,] grid = new Transform[gridHeight, gridWidth];
     public List<string> nextTetrominos = new List<string>();
     public int currScore = 0;
@@ -323,14 +325,19 @@ public class Grid : MonoBehaviour
         GameObject nextTetromino = Instantiate(tetromino, new Vector2(startX, startY), Quaternion.identity);
         nextTetromino.GetComponent<Tetromino>().fallSpeed = levelSpeeds[level - 1];
         nextTetromino.GetComponent<Tetromino>().allowHolding = allowHolding;
-        GameObject ghost = (GameObject)Resources.Load("Prefabs/Ghost" + nextTetrominos[0], typeof(GameObject));
-        foreach (Transform mino in ghost.transform)
+        nextTetromino.GetComponent<Tetromino>().holdingOn = holdingOn;
+        if (ghostOn)
         {
-            mino.gameObject.GetComponent<SpriteRenderer>().sprite = (Sprite)Resources.Load("Minos/Minos" + minoType + "/GhostMino" + tetromino.GetComponent<Tetromino>().ghostMinoGroup, typeof(Sprite));
-        }
+            GameObject ghost = (GameObject)Resources.Load("Prefabs/Ghost" + nextTetrominos[0], typeof(GameObject));
+            foreach (Transform mino in ghost.transform)
+            {
+                mino.gameObject.GetComponent<SpriteRenderer>().sprite = (Sprite)Resources.Load("Minos/Minos" + minoType + "/GhostMino" + tetromino.GetComponent<Tetromino>().ghostMinoGroup, typeof(Sprite));
+            }
 
-        GameObject ghostTetromino = Instantiate(ghost, new Vector3(startX, startY, 1f), Quaternion.identity);
-        ghostTetromino.GetComponent<GhostTetromino>().tetromino = nextTetromino;
+            GameObject ghostTetromino = Instantiate(ghost, new Vector3(startX, startY, 1f), Quaternion.identity);
+            ghostTetromino.GetComponent<GhostTetromino>().tetromino = nextTetromino;
+        }
+        
         nextTetrominos.RemoveAt(0);
         nextTetrominos.Add(GetRandomTetromino());
         FindObjectOfType<Next>().ChangeSprites();
@@ -356,14 +363,18 @@ public class Grid : MonoBehaviour
         GameObject nextTetromino = Instantiate(tetromino, new Vector2(startX, startY), Quaternion.identity);
         nextTetromino.GetComponent<Tetromino>().fallSpeed = levelSpeeds[level - 1];
         nextTetromino.GetComponent<Tetromino>().allowHolding = allowHolding;
-        GameObject ghost = (GameObject)Resources.Load("Prefabs/GhostTetromino_" + tetrominoName, typeof(GameObject));
-        foreach (Transform mino in ghost.transform)
+        nextTetromino.GetComponent<Tetromino>().holdingOn = holdingOn;
+        if (ghostOn)
         {
-            mino.gameObject.GetComponent<SpriteRenderer>().sprite = (Sprite)Resources.Load("Minos/Minos" + minoType + "/GhostMino" + tetromino.GetComponent<Tetromino>().ghostMinoGroup, typeof(Sprite));
-        }
+            GameObject ghost = (GameObject)Resources.Load("Prefabs/GhostTetromino_" + tetrominoName, typeof(GameObject));
+            foreach (Transform mino in ghost.transform)
+            {
+                mino.gameObject.GetComponent<SpriteRenderer>().sprite = (Sprite)Resources.Load("Minos/Minos" + minoType + "/GhostMino" + tetromino.GetComponent<Tetromino>().ghostMinoGroup, typeof(Sprite));
+            }
 
-        GameObject ghostTetromino = Instantiate(ghost, new Vector3(startX, startY, 1f), Quaternion.identity);
-        ghostTetromino.GetComponent<GhostTetromino>().tetromino = nextTetromino;
+            GameObject ghostTetromino = Instantiate(ghost, new Vector3(startX, startY, 1f), Quaternion.identity);
+            ghostTetromino.GetComponent<GhostTetromino>().tetromino = nextTetromino;
+        }
     }
 
     public bool CheckIsInsidePlayArea(Vector2 position)
