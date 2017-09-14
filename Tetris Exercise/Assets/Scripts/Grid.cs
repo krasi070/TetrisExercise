@@ -21,6 +21,7 @@ public class Grid : MonoBehaviour
     public Text scoreText;
     public Text linesText;
     public Text levelText;
+    public Text highSoreText;
 
     public string heldTetromino = null;
     public bool deletedMino = false;
@@ -72,6 +73,7 @@ public class Grid : MonoBehaviour
         scoreText.text = currScore.ToString().PadLeft(7, '0');
         linesText.text = lines.ToString().PadLeft(3, '0');
         levelText.text = level.ToString().PadLeft(2, '0');
+        highSoreText.text = PlayerPrefs.GetInt("HighScore", 0).ToString().PadLeft(7, '0');
     }
 
     public void UpdateScore()
@@ -388,6 +390,11 @@ public class Grid : MonoBehaviour
 
     public void GameOver()
     {
+        if (currScore > PlayerPrefs.GetInt("HighScore", 0))
+        {
+            PlayerPrefs.SetInt("HighScore", currScore);
+        }
+
         SceneManager.LoadScene("GameOver");
     }
 
