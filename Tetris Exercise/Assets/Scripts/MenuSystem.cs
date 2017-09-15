@@ -8,4 +8,9 @@ public class MenuSystem : MonoBehaviour
     {
         SceneManager.LoadScene("Level");
     }
+
+    public void GoToMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
 }
